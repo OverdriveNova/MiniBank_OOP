@@ -1,63 +1,112 @@
-import java.util.Scanner;
-
 class PartB {
-    public record BankInfo(String name, String branch) {}
+    public static class Customer {
+        private String name;
+        private String email;
+        private String mobile;
+        private final String customerId;
+        private static long customerCounter = 100;
 
-    public enum MenuOption { OPEN_ACCOUNT, DEPOSIT, WITHDRAW, TRANSFER, WORKING_HOURS, EXIT }
+        private static String generateCustomerId() {
+            customerCounter++;
+            return "CUST" + customerCounter;
+        }
+
+        public Customer(String name, String email, String mobile) {
+            this.name = name;
+            this.email = email;
+            this.mobile = mobile;
+            this.customerId = generateCustomerId();
+        }
+
+        public String getName() { return name; }
+        public String getEmail() { return email; }
+        public String getMobile() { return mobile; }
+        public String getCustomerId() { return customerId; }
+    }
+
+    public static class Account {
+        private final String accountNumber;
+        private String ownerName;
+        private long balance;
+        private boolean active;
+        private static long accountCounter = 0;
+
+        private static String generateAccountNumber() {
+            accountCounter++;
+            return "AC" + String.format("%04d", accountCounter);
+        }
+
+        public Account(String ownerName, long openingBalance) {
+            this.ownerName = ownerName;
+            this.accountNumber = generateAccountNumber();
+            this.active = true;
+            this.balance = (openingBalance >= 0) ? openingBalance : 0;
+        }
+
+        public Account(String ownerName) {
+            this(ownerName, 0);
+        }
+
+        public void deposit(long amount) {
+            if (amount <= 0) {
+                System.out.println("Deposit failed! Amount must be positive.");
+                return;
+            }
+            balance += amount;
+            System.out.println("Deposited Rs. " + amount + " to " + accountNumber);
+        }
+
+        public boolean withdraw(long amount) {
+            if (amount <= 0) {
+                System.out.println("Withdrawal failed! Amount must be positive.");
+                return false;
+            }
+            if (balance >= amount) {
+                balance -= amount;
+                System.out.println("Withdrew Rs. " + amount + " from " + accountNumber);
+                return true;
+            } else {
+                System.out.println("Withdrawal failed! Insufficient funds.");
+                return false;
+            }
+        }
+
+        public static boolean transfer(Account from, Account to, long amount) {
+            if (amount <= 0) return false;
+            if (from.withdraw(amount)) {
+                to.deposit(amount);
+                return true;
+            }
+            return false;
+        }
+
+        public String getAccountNumber() { return accountNumber; }
+        public String getOwnerName() { return ownerName; }
+        public long getBalance() { return balance; }
+    }
 
     public static void main(String[] args) {
         System.out.println("RUDRA MODI || 25DCS058");
         System.out.println();
-        System.out.println("Practical 1 - Part B: MiniBank Console Menu Shell");
+        System.out.println("Practical 2 - Part B: MiniBank Account Generator & Invariant Protection");
         System.out.println();
-        Scanner scanner = new Scanner(System.in);
+        Customer c1 = new Customer("Rudra", "rudra@bank.com", "9876543210");
+        Customer c2 = new Customer("Aarav", "aarav@bank.com", "8765432109");
 
-        BankInfo bank = new BankInfo("MiniBank Central", "Main Branch (DEPSTAR)");
-        System.out.println("BANK: " + bank.name() + " | BRANCH: " + bank.branch());
+        Account[] accounts = new Account[3];
+        accounts[0] = new Account(c1.getName(), 5000);
+        accounts[1] = new Account(c2.getName(), 2000);
+        accounts[2] = new Account("Joint Account", -100);
 
-        boolean running = true;
+        System.out.println("Testing Transactions:");
+        accounts[0].deposit(2000);
+        accounts[0].withdraw(3000);
+        accounts[0].withdraw(8000);
 
-        while (running) {
-            System.out.println("\n1. Open Account\n2. Deposit\n3. Withdraw\n4. Transfer\n5. Working Hours\n6. Exit");
-            System.out.print("Enter choice (1-6): ");
+        Account.transfer(accounts[0], accounts[1], 1000);
 
-            int choice = 0;
-            if (scanner.hasNextInt()) {
-                choice = scanner.nextInt();
-            } else {
-                System.out.println("Please enter a valid number!");
-                scanner.next();
-                continue;
-            }
-
-            MenuOption option = switch (choice) {
-                case 1 -> MenuOption.OPEN_ACCOUNT;
-                case 2 -> MenuOption.DEPOSIT;
-                case 3 -> MenuOption.WITHDRAW;
-                case 4 -> MenuOption.TRANSFER;
-                case 5 -> MenuOption.WORKING_HOURS;
-                case 6 -> MenuOption.EXIT;
-                default -> null;
-            };
-
-            if (option == null) {
-                System.out.println("Invalid menu option!");
-                continue;
-            }
-
-            switch (option) {
-                case OPEN_ACCOUNT -> System.out.println("Open Account - to be implemented in a later lab.");
-                case DEPOSIT -> System.out.println("Deposit - to be implemented in a later lab.");
-                case WITHDRAW -> System.out.println("Withdraw - to be implemented in a later lab.");
-                case TRANSFER -> System.out.println("Transfer - to be implemented in a later lab.");
-                case WORKING_HOURS -> System.out.println("Working hours: 09:00 AM to 04:00 PM, Mon-Fri.");
-                case EXIT -> {
-                    System.out.println("Thank you for using MiniBank. Goodbye!");
-                    running = false;
-                }
-            }
+        for (Account a : accounts) {
+            System.out.println("Owner: " + a.getOwnerName() + " | AccNo: " + a.getAccountNumber() + " | Balance: Rs. " + a.getBalance());
         }
-
-        scanner.close();
     }
 }
