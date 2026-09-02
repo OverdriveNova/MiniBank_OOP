@@ -1,4 +1,4 @@
-# MiniBank OOP - Progressive Development (v3.0)
+# MiniBank OOP - Progressive Development (v4.0)
 
 > **Academic Practical Laboratory Project**  
 > **Course:** Object Oriented Programming (CEUE203) | Semester 3  
@@ -9,7 +9,7 @@
 ---
 
 ## Overview
-MiniBank is a core banking system simulator developed across 14 laboratory practicals. This branch currently reflects progress up to **Practical 3**.
+MiniBank is a core banking system simulator developed across 14 laboratory practicals. This branch currently reflects progress up to **Practical 4**.
 
 ## Practical Milestones Completed
 | Practical | Version | Title | Key OOP Concepts |
@@ -17,6 +17,7 @@ MiniBank is a core banking system simulator developed across 14 laboratory pract
 | Practical 01 | `v1.0` | MiniBank Console Menu Shell | Java Records, Enumerations, Arrow-Syntax Switch Expressions |
 | Practical 02 | `v2.0` | MiniBank Account Generator & Invariant Protection | Encapsulation, Data Hiding, Static Members & ID Generation |
 | Practical 03 | `v3.0` | MiniBank Deep-Copy Cloning & Address Subsystem | Object Contract (toString, equals, hashCode), Interface Cloneable, Deep vs Shallow Copying |
+| Practical 04 | `v4.0` | MiniBank Regex Validation & Masked Formatting | Regular Expressions (Pattern/Matcher), String Immutability, StringBuilder Performance |
 
 ## How to Run This Version
 ```bash
@@ -26,4 +27,4 @@ java -cp src PartB
 ```
 
 ---
-*Progressive commit for Practical 3 — Part B MiniBank implementation.*
+*Progressive commit for Practical 4 — Part B MiniBank implementation.*
