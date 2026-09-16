@@ -1,8 +1,33 @@
 class PartB {
-    public static abstract class Account {
+
+    public interface Transactable {
+        void deposit(long amount);
+        boolean withdraw(long amount);
+    }
+
+    public interface InterestBearing {
+        double interestRate();
+
+        default double yearlyInterest(long balance) {
+            return (balance * interestRate()) / 100.0;
+        }
+
+        default double monthlyInterest(long balance) {
+            return yearlyInterest(balance) / 12.0;
+        }
+    }
+
+    @FunctionalInterface
+    public interface WithdrawRule {
+        boolean allow(Account account, long amount);
+    }
+
+    public interface Premium {}
+
+    public static abstract class Account implements Transactable, InterestBearing {
         private final String accountNumber;
         private String ownerName;
-        private long balance;
+        protected long balance;
 
         public Account(String accountNumber, String ownerName, long balance) {
             this.accountNumber = accountNumber;
@@ -10,49 +35,48 @@ class PartB {
             this.balance = balance;
         }
 
-        public String getAccountNumber() {
-            return accountNumber;
-        }
+        public String getAccountNumber() { return accountNumber; }
+        public String getOwnerName() { return ownerName; }
+        public long getBalance() { return balance; }
 
-        public String getOwnerName() {
-            return ownerName;
-        }
-
-        public long getBalance() {
-            return balance;
-        }
-
+        @Override
         public void deposit(long amount) {
             if (amount > 0) {
                 balance += amount;
-                System.out.println("Deposited Rs. " + amount + " into " + accountNumber + " | New Balance: Rs. " + balance);
+                System.out.println("Deposited Rs. " + amount + " | Balance: Rs. " + balance);
             }
         }
 
+        @Override
         public boolean withdraw(long amount) {
             if (amount > 0 && canWithdraw(amount)) {
                 balance -= amount;
-                System.out.println("Withdrew Rs. " + amount + " from " + accountNumber + " | Remaining Balance: Rs. " + balance);
+                System.out.println("Withdrew Rs. " + amount + " | Remaining Balance: Rs. " + balance);
                 return true;
+            }
+            System.out.println("Withdrawal of Rs. " + amount + " rejected on " + accountNumber + "!");
+            return false;
+        }
+
+        public boolean withdrawWithRule(long amount, WithdrawRule rule) {
+            if (rule.allow(this, amount)) {
+                return withdraw(amount);
             } else {
-                System.out.println("Withdrawal of Rs. " + amount + " failed on " + accountNumber + "! (Policy violation / Insufficient funds)");
+                System.out.println("Withdrawal blocked by WithdrawRule policy!");
                 return false;
             }
         }
 
-        public abstract double interestRate();
-
         public abstract boolean canWithdraw(long amount);
-
         public abstract String getAccountType();
 
         @Override
         public String toString() {
-            return "[" + getAccountType() + "] " + accountNumber + " (" + ownerName + ") | Balance: Rs. " + balance + " | Rate: " + interestRate() + "%";
+            return "[" + getAccountType() + "] " + accountNumber + " (" + ownerName + ") | Balance: Rs. " + balance;
         }
     }
 
-    public static class SavingsAccount extends Account {
+    public static class SavingsAccount extends Account implements Premium {
         private final long minBalance;
 
         public SavingsAccount(String accountNumber, String ownerName, long balance, long minBalance) {
@@ -60,24 +84,16 @@ class PartB {
             this.minBalance = minBalance;
         }
 
-        public long getMinBalance() {
-            return minBalance;
-        }
-
         @Override
-        public double interestRate() {
-            return 4.0;
-        }
+        public double interestRate() { return 4.0; }
 
         @Override
         public boolean canWithdraw(long amount) {
-            return (getBalance() - amount) >= minBalance;
+            return (balance - amount) >= minBalance;
         }
 
         @Override
-        public String getAccountType() {
-            return "Savings";
-        }
+        public String getAccountType() { return "Savings [PREMIUM VIP]"; }
     }
 
     public static class CurrentAccount extends Account {
@@ -88,90 +104,64 @@ class PartB {
             this.overdraftLimit = overdraftLimit;
         }
 
-        public long getOverdraftLimit() {
-            return overdraftLimit;
-        }
-
         @Override
-        public double interestRate() {
-            return 0.0;
-        }
+        public double interestRate() { return 0.0; }
 
         @Override
         public boolean canWithdraw(long amount) {
-            return (getBalance() - amount) >= -overdraftLimit;
+            return (balance - amount) >= -overdraftLimit;
         }
 
         @Override
-        public String getAccountType() {
-            return "Current";
-        }
-    }
-
-    public static class FixedDepositAccount extends Account {
-        private int termMonths;
-
-        public FixedDepositAccount(String accountNumber, String ownerName, long balance, int termMonths) {
-            super(accountNumber, ownerName, balance);
-            this.termMonths = termMonths;
-        }
-
-        public int getTermMonths() {
-            return termMonths;
-        }
-
-        @Override
-        public double interestRate() {
-            return 7.0;
-        }
-
-        @Override
-        public boolean canWithdraw(long amount) {
-            return false;
-        }
-
-        @Override
-        public String getAccountType() {
-            return "FixedDeposit";
-        }
+        public String getAccountType() { return "Current"; }
     }
 
     public static void main(String[] args) {
         System.out.println("RUDRA MODI || 25DCS058");
         System.out.println();
-        System.out.println("Practical 5 - Part B: MiniBank Polymorphic Account Hierarchy");
+        System.out.println("Practical 6 - Part B: MiniBank Transaction Processing & Auditable Contract");
         System.out.println();
-        Account[] accounts = {
-            new SavingsAccount("AC0001", "Rudra Patel", 8000, 1000),
-            new CurrentAccount("AC0002", "Aarav Sharma", 4000, 5000),
-            new FixedDepositAccount("AC0003", "Diya Shah", 50000, 12)
-        };
+        SavingsAccount sa = new SavingsAccount("AC0001", "Rudra Patel", 50000, 2000);
+        CurrentAccount ca = new CurrentAccount("AC0002", "Aarav Sharma", 15000, 5000);
 
-        System.out.println("MiniBank Account Subtypes & Polymorphic Rates:");
-        for (Account acc : accounts) {
-            System.out.println(acc);
-            System.out.printf("  -> Verified Interest Rate: %.1f%%%n", acc.interestRate());
+        System.out.println("1. Testing Default Methods in Interface InterestBearing:");
+        System.out.println("Account: " + sa);
+        System.out.printf("Annual Interest (4%% on Rs. %d): Rs. %.2f%n", sa.getBalance(), sa.yearlyInterest(sa.getBalance()));
+        System.out.printf("Monthly Projected Interest       : Rs. %.2f%n", sa.monthlyInterest(sa.getBalance()));
 
-            if (acc instanceof SavingsAccount sa) {
-                System.out.println("  -> [Savings Rule] Minimum mandatory balance: Rs. " + sa.getMinBalance());
-            } else if (acc instanceof CurrentAccount ca) {
-                System.out.println("  -> [Current Rule] Approved Overdraft Limit: Rs. " + ca.getOverdraftLimit());
-            } else if (acc instanceof FixedDepositAccount fda) {
-                System.out.println("  -> [FD Rule] Term Lock Period: " + fda.getTermMonths() + " months (Premature withdrawal disabled)");
-            }
-            System.out.println();
+        System.out.println("\n2. Marker Interface 'Premium' Evaluation:");
+        if (sa instanceof Premium) {
+            System.out.println(sa.getAccountNumber() + " is marked as [PREMIUM]. Entitled to dedicated relationship manager & zero ATM fees.");
+        }
+        if (!(ca instanceof Premium)) {
+            System.out.println(ca.getAccountNumber() + " is a standard non-premium account.");
         }
 
-        System.out.println("Testing Specialized Withdrawal Behaviors:");
-        System.out.println("1. Testing SavingsAccount (Balance Rs. 8000, MinBalance Rs. 1000):");
-        accounts[0].withdraw(7500);
-        accounts[0].withdraw(6000);
+        System.out.println("\n3. Functional Interface (WithdrawRule) via Anonymous Class:");
 
-        System.out.println("\n2. Testing CurrentAccount (Balance Rs. 4000, Overdraft Rs. 5000):");
-        accounts[1].withdraw(7000);
-        accounts[1].withdraw(3000);
+        WithdrawRule dailyLimitRule = new WithdrawRule() {
+            @Override
+            public boolean allow(Account account, long amount) {
+                if (amount > 10000) {
+                    System.out.println("  [Anonymous Rule Check] Amount Rs. " + amount + " exceeds single-transaction limit of Rs. 10,000");
+                    return false;
+                }
+                return true;
+            }
+        };
+        sa.withdrawWithRule(15000, dailyLimitRule);
+        sa.withdrawWithRule(8000, dailyLimitRule);
 
-        System.out.println("\n3. Testing FixedDepositAccount (Balance Rs. 50000, Locked):");
-        accounts[2].withdraw(5000);
+        System.out.println("\n4. Functional Interface (WithdrawRule) via Lambda Expression:");
+
+        WithdrawRule highNetWorthGuard = (account, amount) -> {
+            boolean pass = (account.getBalance() - amount) >= 10000;
+            if (!pass) {
+                System.out.println("  [Lambda Rule Check] Rule requires minimum Rs. 10,000 post-withdrawal cushion!");
+            }
+            return pass;
+        };
+        sa.withdrawWithRule(35000, highNetWorthGuard);
+        sa.withdrawWithRule(5000, highNetWorthGuard);
     }
 }
