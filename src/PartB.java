@@ -1,20 +1,27 @@
-class PartB {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
-    public interface Transactable {
-        void deposit(long amount);
-        boolean withdraw(long amount);
+class PartB {
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Id {}
+
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Positive {
+        String message() default "must be > 0";
     }
 
-    public interface InterestBearing {
-        double interestRate();
-
-        default double yearlyInterest(long balance) {
-            return (balance * interestRate()) / 100.0;
-        }
-
-        default double monthlyInterest(long balance) {
-            return yearlyInterest(balance) / 12.0;
-        }
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface MaxLength {
+        int value();
+        String message() default "exceeds maximum allowed length";
     }
 
     @FunctionalInterface
@@ -22,146 +29,101 @@ class PartB {
         boolean allow(Account account, long amount);
     }
 
-    public interface Premium {}
-
-    public static abstract class Account implements Transactable, InterestBearing {
+    public static class Account {
+        @Id
         private final String accountNumber;
-        private String ownerName;
-        protected long balance;
 
-        public Account(String accountNumber, String ownerName, long balance) {
+        @MaxLength(value = 30, message = "Holder name exceeds 30 characters")
+        private final String holderName;
+
+        @Positive(message = "must be > 0")
+        private long balance;
+
+        public Account(String accountNumber, String holderName, long balance) {
             this.accountNumber = accountNumber;
-            this.ownerName = ownerName;
+            this.holderName = holderName;
             this.balance = balance;
         }
 
         public String getAccountNumber() { return accountNumber; }
-        public String getOwnerName() { return ownerName; }
+        public String getHolderName() { return holderName; }
         public long getBalance() { return balance; }
 
         @Override
-        public void deposit(long amount) {
-            if (amount > 0) {
-                balance += amount;
-                System.out.println("Deposited Rs. " + amount + " | Balance: Rs. " + balance);
-            }
-        }
-
-        @Override
-        public boolean withdraw(long amount) {
-            if (amount > 0 && canWithdraw(amount)) {
-                balance -= amount;
-                System.out.println("Withdrew Rs. " + amount + " | Remaining Balance: Rs. " + balance);
-                return true;
-            }
-            System.out.println("Withdrawal of Rs. " + amount + " rejected on " + accountNumber + "!");
-            return false;
-        }
-
-        public boolean withdrawWithRule(long amount, WithdrawRule rule) {
-            if (rule.allow(this, amount)) {
-                return withdraw(amount);
-            } else {
-                System.out.println("Withdrawal blocked by WithdrawRule policy!");
-                return false;
-            }
-        }
-
-        public abstract boolean canWithdraw(long amount);
-        public abstract String getAccountType();
-
-        @Override
         public String toString() {
-            return "[" + getAccountType() + "] " + accountNumber + " (" + ownerName + ") | Balance: Rs. " + balance;
+            return "Account [" + accountNumber + " | " + holderName + " | Balance: Rs. " + balance + "]";
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            Account acc = (Account) obj;
+            return accountNumber.equals(acc.accountNumber);
+        }
+
+        @Override
+        public int hashCode() {
+            return accountNumber.hashCode();
         }
     }
 
-    public static class SavingsAccount extends Account implements Premium {
-        private final long minBalance;
+    public static class AnnotationValidator {
+        public static String[] validate(Object obj) {
+            List<String> errors = new ArrayList<>();
+            Class<?> clazz = obj.getClass();
 
-        public SavingsAccount(String accountNumber, String ownerName, long balance, long minBalance) {
-            super(accountNumber, ownerName, balance);
-            this.minBalance = minBalance;
+            for (Field field : clazz.getDeclaredFields()) {
+                field.setAccessible(true);
+                try {
+                    Object value = field.get(obj);
+
+                    if (field.isAnnotationPresent(Positive.class)) {
+                        Positive pos = field.getAnnotation(Positive.class);
+                        if (value instanceof Number num) {
+                            if (num.longValue() <= 0) {
+                                errors.add("Field '" + field.getName() + "': " + pos.message() + " (Actual: " + num + ")");
+                            }
+                        }
+                    }
+
+                    if (field.isAnnotationPresent(MaxLength.class)) {
+                        MaxLength max = field.getAnnotation(MaxLength.class);
+                        if (value != null && value.toString().length() > max.value()) {
+                            errors.add("Field '" + field.getName() + "': " + max.message() + " (Max: " + max.value() + ", Actual: " + value.toString().length() + ")");
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    errors.add("Cannot access field " + field.getName());
+                }
+            }
+            return errors.toArray(new String[0]);
         }
-
-        @Override
-        public double interestRate() { return 4.0; }
-
-        @Override
-        public boolean canWithdraw(long amount) {
-            return (balance - amount) >= minBalance;
-        }
-
-        @Override
-        public String getAccountType() { return "Savings [PREMIUM VIP]"; }
-    }
-
-    public static class CurrentAccount extends Account {
-        private final long overdraftLimit;
-
-        public CurrentAccount(String accountNumber, String ownerName, long balance, long overdraftLimit) {
-            super(accountNumber, ownerName, balance);
-            this.overdraftLimit = overdraftLimit;
-        }
-
-        @Override
-        public double interestRate() { return 0.0; }
-
-        @Override
-        public boolean canWithdraw(long amount) {
-            return (balance - amount) >= -overdraftLimit;
-        }
-
-        @Override
-        public String getAccountType() { return "Current"; }
     }
 
     public static void main(String[] args) {
         System.out.println("RUDRA MODI || 25DCS058");
         System.out.println();
-        System.out.println("Practical 6 - Part B: MiniBank Transaction Processing & Auditable Contract");
+        System.out.println("Practical 7 - Part B: MiniBank Runtime Metadata & Annotation Validator");
         System.out.println();
-        SavingsAccount sa = new SavingsAccount("AC0001", "Rudra Patel", 50000, 2000);
-        CurrentAccount ca = new CurrentAccount("AC0002", "Aarav Sharma", 15000, 5000);
-
-        System.out.println("1. Testing Default Methods in Interface InterestBearing:");
-        System.out.println("Account: " + sa);
-        System.out.printf("Annual Interest (4%% on Rs. %d): Rs. %.2f%n", sa.getBalance(), sa.yearlyInterest(sa.getBalance()));
-        System.out.printf("Monthly Projected Interest       : Rs. %.2f%n", sa.monthlyInterest(sa.getBalance()));
-
-        System.out.println("\n2. Marker Interface 'Premium' Evaluation:");
-        if (sa instanceof Premium) {
-            System.out.println(sa.getAccountNumber() + " is marked as [PREMIUM]. Entitled to dedicated relationship manager & zero ATM fees.");
-        }
-        if (!(ca instanceof Premium)) {
-            System.out.println(ca.getAccountNumber() + " is a standard non-premium account.");
+        Account invalidAccount = new Account("AC1001", "Rudra Modi With An Excessively Long Account Holder Name Example", -500);
+        System.out.println("Validating Problematic Account Instance:");
+        System.out.println("Account Info: " + invalidAccount);
+        String[] invalidErrors = AnnotationValidator.validate(invalidAccount);
+        for (String err : invalidErrors) {
+            System.out.println("  [VALIDATION ERROR] " + err);
         }
 
-        System.out.println("\n3. Functional Interface (WithdrawRule) via Anonymous Class:");
-
-        WithdrawRule dailyLimitRule = new WithdrawRule() {
-            @Override
-            public boolean allow(Account account, long amount) {
-                if (amount > 10000) {
-                    System.out.println("  [Anonymous Rule Check] Amount Rs. " + amount + " exceeds single-transaction limit of Rs. 10,000");
-                    return false;
-                }
-                return true;
+        System.out.println("\nValidating Compliant Account Instance:");
+        Account validAccount = new Account("AC1002", "Rudra Modi", 15000);
+        System.out.println("Account Info: " + validAccount);
+        String[] validErrors = AnnotationValidator.validate(validAccount);
+        if (validErrors.length == 0) {
+            System.out.println("  [VALIDATION SUCCESS] All annotation constraints satisfied (0 errors).");
+        } else {
+            for (String err : validErrors) {
+                System.out.println("  [VALIDATION ERROR] " + err);
             }
-        };
-        sa.withdrawWithRule(15000, dailyLimitRule);
-        sa.withdrawWithRule(8000, dailyLimitRule);
-
-        System.out.println("\n4. Functional Interface (WithdrawRule) via Lambda Expression:");
-
-        WithdrawRule highNetWorthGuard = (account, amount) -> {
-            boolean pass = (account.getBalance() - amount) >= 10000;
-            if (!pass) {
-                System.out.println("  [Lambda Rule Check] Rule requires minimum Rs. 10,000 post-withdrawal cushion!");
-            }
-            return pass;
-        };
-        sa.withdrawWithRule(35000, highNetWorthGuard);
-        sa.withdrawWithRule(5000, highNetWorthGuard);
+        }
     }
 }
