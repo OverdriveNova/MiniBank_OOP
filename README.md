@@ -1,4 +1,4 @@
-# MiniBank OOP - Progressive Development (v8.0)
+# MiniBank OOP - Progressive Development (v9.0)
 
 > **Academic Practical Laboratory Project**  
 > **Course:** Object Oriented Programming (CEUE203) | Semester 3  
@@ -9,7 +9,7 @@
 ---
 
 ## Overview
-MiniBank is a core banking system simulator developed across 14 laboratory practicals. This branch currently reflects progress up to **Practical 8**.
+MiniBank is a core banking system simulator developed across 14 laboratory practicals. This branch currently reflects progress up to **Practical 9**.
 
 ## Practical Milestones Completed
 | Practical | Version | Title | Key OOP Concepts |
@@ -22,6 +22,7 @@ MiniBank is a core banking system simulator developed across 14 laboratory pract
 | Practical 06 | `v6.0` | MiniBank Transaction Processing & Auditable Contract | Interfaces, Multiple Interface Inheritance, Strategy Pattern |
 | Practical 07 | `v7.0` | MiniBank Runtime Metadata & Annotation Validator | Custom Annotations, RetentionPolicy.RUNTIME, Java Reflection API |
 | Practical 08 | `v8.0` | MiniBank Robust Exception Handling Architecture | Checked Exceptions, Exception Hierarchy, Custom Exception Classes |
+| Practical 09 | `v9.0` | MiniBank Multithreaded Account Synchronization | Multithreading, Runnable Interface, Race Conditions |
 
 ## How to Run This Version
 ```bash
@@ -31,4 +32,4 @@ java -cp src PartB
 ```
 
 ---
-*Progressive commit for Practical 8 — Part B MiniBank implementation.*
+*Progressive commit for Practical 9 — Part B MiniBank implementation.*

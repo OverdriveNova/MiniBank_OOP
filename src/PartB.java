@@ -1,133 +1,84 @@
 class PartB {
-    public static class BankException extends Exception {
-        public BankException(String message) {
-            super(message);
-        }
-    }
-
-    public static class InsufficientFundsException extends BankException {
-        private final long shortfall;
-
-        public InsufficientFundsException(String accNo, long balance, long requested) {
-            super("Account [" + accNo + "] has insufficient funds. Balance: Rs. " + balance + ", Requested: Rs. " + requested);
-            this.shortfall = requested - balance;
-        }
-
-        public long getShortfall() {
-            return shortfall;
-        }
-    }
-
-    public static class AccountNotFoundException extends BankException {
-        public AccountNotFoundException(String accNo) {
-            super("Account [" + accNo + "] was not found in the bank directory.");
-        }
-    }
-
-    public static class InvalidAmountException extends BankException {
-        public InvalidAmountException(String message) {
-            super(message);
-        }
-    }
-
-    public static class BankSession implements AutoCloseable {
-        private final String sessionId;
-
-        public BankSession(String sessionId) {
-            this.sessionId = sessionId;
-            System.out.println("  [SESSION] Banking Transaction Session '" + sessionId + "' opened.");
-        }
-
-        @Override
-        public void close() {
-            System.out.println("  [SESSION] Banking Transaction Session '" + sessionId + "' safely closed & committed.");
-        }
-    }
-
     public static class Account {
         private final String accountNumber;
-        private final String holderName;
         private long balance;
 
-        public Account(String accountNumber, String holderName, long balance) {
+        public Account(String accountNumber, long initialBalance) {
             this.accountNumber = accountNumber;
-            this.holderName = holderName;
-            this.balance = balance;
+            this.balance = initialBalance;
         }
 
         public String getAccountNumber() { return accountNumber; }
-        public String getHolderName() { return holderName; }
         public long getBalance() { return balance; }
 
-        public void deposit(long amount) throws InvalidAmountException {
-            if (amount <= 0) {
-                throw new InvalidAmountException("Deposit amount must be strictly greater than 0. Received: Rs. " + amount);
-            }
+        public void unsafeDeposit(long amount) {
+            long current = balance;
+            try { Thread.sleep(1); } catch (InterruptedException ignored) {}
+            balance = current + amount;
+        }
+
+        public synchronized void safeDeposit(long amount) {
             balance += amount;
-            System.out.println("  [DEPOSIT SUCCESS] Deposited Rs. " + amount + " to " + accountNumber + ". New Balance: Rs. " + balance);
-        }
-
-        public void withdraw(long amount) throws InsufficientFundsException, InvalidAmountException {
-            if (amount <= 0) {
-                throw new InvalidAmountException("Withdrawal amount must be strictly greater than 0. Received: Rs. " + amount);
-            }
-            if (amount > balance) {
-                throw new InsufficientFundsException(accountNumber, balance, amount);
-            }
-            balance -= amount;
-            System.out.println("  [WITHDRAW SUCCESS] Withdrawn Rs. " + amount + " from " + accountNumber + ". Remaining Balance: Rs. " + balance);
-        }
-
-        public void transfer(Account recipient, long amount) throws BankException {
-            if (recipient == null) {
-                throw new AccountNotFoundException("TARGET-ACCOUNT-NULL");
-            }
-            System.out.println("  [TRANSFER ATTEMPT] Initiating transfer of Rs. " + amount + " from " + accountNumber + " to " + recipient.accountNumber);
-            this.withdraw(amount);
-            recipient.deposit(amount);
-            System.out.println("  [TRANSFER COMPLETED] Successfully transferred Rs. " + amount + " to " + recipient.accountNumber);
-        }
-
-        @Override
-        public String toString() {
-            return "[" + accountNumber + " | " + holderName + " | Rs. " + balance + "]";
         }
     }
 
-    public static void main(String[] args) {
+    public static class AccountWorker implements Runnable {
+        private final Account account;
+        private final int times;
+        private final long amount;
+        private final boolean useSafe;
+
+        public AccountWorker(Account account, int times, long amount, boolean useSafe) {
+            this.account = account;
+            this.times = times;
+            this.amount = amount;
+            this.useSafe = useSafe;
+        }
+
+        @Override
+        public void run() {
+            for (int i = 0; i < times; i++) {
+                if (useSafe) {
+                    account.safeDeposit(amount);
+                } else {
+                    account.unsafeDeposit(amount);
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("RUDRA MODI || 25DCS058");
         System.out.println();
-        System.out.println("Practical 8 - Part B: MiniBank Robust Exception Handling Architecture");
+        System.out.println("Practical 9 - Part B: MiniBank Multithreaded Account Synchronization");
         System.out.println();
-        Account acc1 = new Account("AC1001", "Rudra Modi", 5000);
-        Account acc2 = new Account("AC1002", "Dhyey Patel", 2000);
+        int numThreads = 10;
+        int operationsPerThread = 100;
+        long depositAmount = 10;
+        long expectedTotal = numThreads * operationsPerThread * depositAmount;
 
-        System.out.println("Initial State: " + acc1 + " and " + acc2);
+        System.out.println("Configuration: " + numThreads + " Concurrent Threads | " + operationsPerThread + " Deposits of Rs. " + depositAmount + " each");
+        System.out.println("Expected Final Balance: Rs. " + expectedTotal);
 
-        System.out.println("\nTest 1: Invalid Amount Exception on Negative Deposit:");
-        try {
-            acc1.deposit(-1000);
-        } catch (InvalidAmountException e) {
-            System.out.println("  [CAUGHT EXCEPTION] " + e.getMessage());
+        System.out.println("\nPhase 1: Unsynchronized Concurrent Deposits (Race Condition):");
+        Account unsafeAcc = new Account("AC1001", 0);
+        Thread[] threads1 = new Thread[numThreads];
+        for (int i = 0; i < numThreads; i++) {
+            threads1[i] = new Thread(new AccountWorker(unsafeAcc, operationsPerThread, depositAmount, false), "WorkerThread-" + (i + 1));
+            threads1[i].start();
         }
+        for (Thread t : threads1) t.join();
+        System.out.println("Unsafe Final Balance: Rs. " + unsafeAcc.getBalance() + " (Lost Money: Rs. " + (expectedTotal - unsafeAcc.getBalance()) + ")");
 
-        System.out.println("\nTest 2: Insufficient Funds Exception on Large Withdrawal:");
-        try {
-            acc1.withdraw(8000);
-        } catch (InsufficientFundsException e) {
-            System.out.println("  [CAUGHT EXCEPTION] " + e.getMessage());
-            System.out.println("  -> Deficit / Shortfall Amount: Rs. " + e.getShortfall());
-        } catch (InvalidAmountException e) {
-            System.out.println("  [CAUGHT EXCEPTION] " + e.getMessage());
+        System.out.println("\nPhase 2: Synchronized Method Deposits (Thread-Safe Execution):");
+        Account safeAcc = new Account("AC1002", 0);
+        Thread[] threads2 = new Thread[numThreads];
+        for (int i = 0; i < numThreads; i++) {
+            threads2[i] = new Thread(new AccountWorker(safeAcc, operationsPerThread, depositAmount, true), "SyncWorkerThread-" + (i + 1));
+            System.out.println("  -> Starting Thread: " + threads2[i].getName() + " [State: " + threads2[i].getState() + "]");
+            threads2[i].start();
         }
-
-        System.out.println("\nTest 3: Transaction Session with Try-With-Resources & Successful Transfer:");
-        try (BankSession session = new BankSession("TXN-SES-991")) {
-            acc1.transfer(acc2, 3000);
-        } catch (BankException e) {
-            System.out.println("  [TRANSFER FAILED] " + e.getMessage());
-        } finally {
-            System.out.println("  [AUDIT] Final Balances -> " + acc1 + " | " + acc2);
-        }
+        for (Thread t : threads2) t.join();
+        System.out.println("Synchronized Final Balance: Rs. " + safeAcc.getBalance() + " [EXACT MATCH - Thread Safe]");
     }
 }
