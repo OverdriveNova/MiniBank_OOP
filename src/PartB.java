@@ -1,84 +1,102 @@
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 class PartB {
     public static class Account {
         private final String accountNumber;
+        private final String holderName;
         private long balance;
 
-        public Account(String accountNumber, long initialBalance) {
+        public Account(String accountNumber, String holderName, long balance) {
             this.accountNumber = accountNumber;
-            this.balance = initialBalance;
+            this.holderName = holderName;
+            this.balance = balance;
         }
 
         public String getAccountNumber() { return accountNumber; }
-        public long getBalance() { return balance; }
+        public String getHolderName() { return holderName; }
+        public synchronized long getBalance() { return balance; }
 
-        public void unsafeDeposit(long amount) {
-            long current = balance;
-            try { Thread.sleep(1); } catch (InterruptedException ignored) {}
-            balance = current + amount;
-        }
-
-        public synchronized void safeDeposit(long amount) {
+        public synchronized void deposit(long amount) {
             balance += amount;
         }
-    }
 
-    public static class AccountWorker implements Runnable {
-        private final Account account;
-        private final int times;
-        private final long amount;
-        private final boolean useSafe;
-
-        public AccountWorker(Account account, int times, long amount, boolean useSafe) {
-            this.account = account;
-            this.times = times;
-            this.amount = amount;
-            this.useSafe = useSafe;
+        public synchronized boolean withdraw(long amount) {
+            if (balance >= amount) {
+                balance -= amount;
+                return true;
+            }
+            return false;
         }
 
         @Override
-        public void run() {
-            for (int i = 0; i < times; i++) {
-                if (useSafe) {
-                    account.safeDeposit(amount);
-                } else {
-                    account.unsafeDeposit(amount);
+        public String toString() {
+            return "[" + accountNumber + " | " + holderName + " | Balance: Rs. " + getBalance() + "]";
+        }
+    }
+
+    public static class TransactionProcessor {
+        private final ExecutorService executor;
+
+        public TransactionProcessor(int poolSize) {
+            this.executor = Executors.newFixedThreadPool(poolSize);
+        }
+
+        public void submit(Runnable task) {
+            executor.submit(task);
+        }
+
+        public void stop() {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+            }
+        }
+
+        public static void transferDeadlockFree(Account from, Account to, long amount) {
+            Account first = (from.getAccountNumber().compareTo(to.getAccountNumber()) < 0) ? from : to;
+            Account second = (from.getAccountNumber().compareTo(to.getAccountNumber()) < 0) ? to : from;
+
+            synchronized (first) {
+                synchronized (second) {
+                    if (from.withdraw(amount)) {
+                        to.deposit(amount);
+                        System.out.println("  [TRANSFER SUCCESS] Rs. " + amount + " transferred from " + from.getAccountNumber() + " -> " + to.getAccountNumber());
+                    } else {
+                        System.out.println("  [TRANSFER REJECTED] Insufficient balance in " + from.getAccountNumber());
+                    }
                 }
             }
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         System.out.println("RUDRA MODI || 25DCS058");
         System.out.println();
-        System.out.println("Practical 9 - Part B: MiniBank Multithreaded Account Synchronization");
+        System.out.println("Practical 10 - Part B: MiniBank Concurrent Transaction Processor Engine");
         System.out.println();
-        int numThreads = 10;
-        int operationsPerThread = 100;
-        long depositAmount = 10;
-        long expectedTotal = numThreads * operationsPerThread * depositAmount;
+        Account accA = new Account("AC1001", "Rudra Modi", 10000);
+        Account accB = new Account("AC1002", "Dhyey Patel", 8000);
 
-        System.out.println("Configuration: " + numThreads + " Concurrent Threads | " + operationsPerThread + " Deposits of Rs. " + depositAmount + " each");
-        System.out.println("Expected Final Balance: Rs. " + expectedTotal);
+        System.out.println("Initial State:\n  " + accA + "\n  " + accB + "\n");
 
-        System.out.println("\nPhase 1: Unsynchronized Concurrent Deposits (Race Condition):");
-        Account unsafeAcc = new Account("AC1001", 0);
-        Thread[] threads1 = new Thread[numThreads];
-        for (int i = 0; i < numThreads; i++) {
-            threads1[i] = new Thread(new AccountWorker(unsafeAcc, operationsPerThread, depositAmount, false), "WorkerThread-" + (i + 1));
-            threads1[i].start();
-        }
-        for (Thread t : threads1) t.join();
-        System.out.println("Unsafe Final Balance: Rs. " + unsafeAcc.getBalance() + " (Lost Money: Rs. " + (expectedTotal - unsafeAcc.getBalance()) + ")");
+        TransactionProcessor processor = new TransactionProcessor(4);
 
-        System.out.println("\nPhase 2: Synchronized Method Deposits (Thread-Safe Execution):");
-        Account safeAcc = new Account("AC1002", 0);
-        Thread[] threads2 = new Thread[numThreads];
-        for (int i = 0; i < numThreads; i++) {
-            threads2[i] = new Thread(new AccountWorker(safeAcc, operationsPerThread, depositAmount, true), "SyncWorkerThread-" + (i + 1));
-            System.out.println("  -> Starting Thread: " + threads2[i].getName() + " [State: " + threads2[i].getState() + "]");
-            threads2[i].start();
-        }
-        for (Thread t : threads2) t.join();
-        System.out.println("Synchronized Final Balance: Rs. " + safeAcc.getBalance() + " [EXACT MATCH - Thread Safe]");
+        System.out.println("Submitting Batch of Concurrent Cross-Transfers to Managed Thread Pool:");
+
+        processor.submit(() -> TransactionProcessor.transferDeadlockFree(accA, accB, 1500));
+        processor.submit(() -> TransactionProcessor.transferDeadlockFree(accB, accA, 500));
+        processor.submit(() -> TransactionProcessor.transferDeadlockFree(accA, accB, 2000));
+        processor.submit(() -> TransactionProcessor.transferDeadlockFree(accB, accA, 1000));
+
+        processor.stop();
+
+        System.out.println("\nBatch Processing Complete. Transaction Processor Stopped.");
+        System.out.println("Final State:\n  " + accA + "\n  " + accB);
     }
 }
