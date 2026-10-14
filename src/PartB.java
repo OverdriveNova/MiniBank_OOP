@@ -1,50 +1,19 @@
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-class Customer implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private String name;
-    private String customerId;
-
-    public Customer(String name, String customerId) {
-        this.name = name;
-        this.customerId = customerId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getCustomerId() {
-        return customerId;
-    }
-
-    public String toString() {
-        return "Customer[id=" + customerId + ", name=" + name + "]";
-    }
-}
-
-class Account implements Serializable {
-    private static final long serialVersionUID = 1L;
+class Account implements Comparable<Account> {
     private final String accountNumber;
-    private Customer customer;
-    protected double balance;
+    private final String holderName;
+    private double balance;
 
-    public Account(String accountNumber, Customer customer, double initialBalance) {
+    public Account(String accountNumber, String holderName, double initialBalance) {
         this.accountNumber = accountNumber;
-        this.customer = customer;
+        this.holderName = holderName;
         this.balance = initialBalance;
     }
 
@@ -52,75 +21,75 @@ class Account implements Serializable {
         return accountNumber;
     }
 
+    public String getHolderName() {
+        return holderName;
+    }
+
     public double getBalance() {
         return balance;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public synchronized void deposit(double amount) {
+        if (amount > 0) {
+            this.balance += amount;
+        }
     }
 
+    @Override
+    public int compareTo(Account other) {
+        return this.accountNumber.compareTo(other.accountNumber);
+    }
+
+    @Override
     public String toString() {
-        return "Account[" + accountNumber + " | Owner: " + customer.getName() + " | Balance: Rs. " + balance + "]";
+        return String.format("Account[%s | %-12s | Balance: Rs. %.2f]", accountNumber, holderName, balance);
     }
 }
 
-class StatePersister {
-    public static void save(Account[] accounts, Path file) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(file))) {
-            oos.writeObject(accounts);
-        }
+class AccountStore {
+    private final Map<String, Account> accounts = new HashMap<>();
+    private final List<String> transactionHistory = new ArrayList<>();
+
+    public void add(Account account) {
+        accounts.put(account.getAccountNumber(), account);
+        transactionHistory.add("Registered account: " + account.getAccountNumber());
     }
 
-    public static Account[] load(Path file) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(file))) {
-            return (Account[]) ois.readObject();
-        }
+    public Account get(String accountNumber) {
+        return accounts.get(accountNumber);
+    }
+
+    public List<Account> getAll() {
+        return new ArrayList<>(accounts.values());
+    }
+
+    public List<Account> sortedByBalance() {
+        List<Account> sortedList = new ArrayList<>(accounts.values());
+        sortedList.sort(Comparator.comparing(Account::getBalance, Comparator.reverseOrder()));
+        return sortedList;
+    }
+
+    public List<String> getTransactionHistory() {
+        return Collections.unmodifiableList(transactionHistory);
     }
 }
 
-class TransactionLog {
-    public static void append(Path file, String line) throws IOException {
-        if (file.getParent() != null && !Files.exists(file.getParent())) {
-            Files.createDirectories(file.getParent());
-        }
-        Files.write(file, Collections.singletonList(line),
-                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+class TransactionProcessor {
+    private final ConcurrentHashMap<String, Account> sharedAccounts = new ConcurrentHashMap<>();
+
+    public void registerAccount(Account acc) {
+        sharedAccounts.put(acc.getAccountNumber(), acc);
     }
-}
 
-class ReportGenerator {
-    public static void generateReport(Path logsDir, Path reportFile) throws IOException {
-        long totalDeposits = 0;
-        long totalWithdrawals = 0;
-
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(logsDir, "*.log")) {
-            for (Path entry : stream) {
-                BasicFileAttributes attrs = Files.readAttributes(entry, BasicFileAttributes.class);
-                try (BufferedReader reader = Files.newBufferedReader(entry)) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        String[] parts = line.split("\\s+");
-                        if (parts.length >= 3) {
-                            String type = parts[0];
-                            long amount = Long.parseLong(parts[2]);
-                            if ("DEPOSIT".equalsIgnoreCase(type)) {
-                                totalDeposits += amount;
-                            } else if ("WITHDRAW".equalsIgnoreCase(type)) {
-                                totalWithdrawals += amount;
-                            }
-                        }
-                    }
-                }
-            }
+    public void executeConcurrentDeposit(String accNumber, double amount) {
+        Account acc = sharedAccounts.get(accNumber);
+        if (acc != null) {
+            acc.deposit(amount);
         }
+    }
 
-        long netChange = totalDeposits - totalWithdrawals;
-        String summary = String.format("End-Of-Day Financial Summary Report\nTotal Deposits: Rs. %d\nTotal Withdrawals: Rs. %d\nNet Liquidity Change: Rs. %d\n",
-                totalDeposits, totalWithdrawals, netChange);
-
-        Files.writeString(reportFile, summary, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        System.out.print(summary);
+    public Account getAccount(String accNumber) {
+        return sharedAccounts.get(accNumber);
     }
 }
 
@@ -128,52 +97,45 @@ public class PartB {
     public static void main(String[] args) {
         System.out.println("RUDRA MODI || 25DCS058");
         System.out.println();
-        System.out.println("Practical 11 - Part B: MiniBank Persistence, Audit Log & NIO Report");
+        System.out.println("Practical 12 - Part B: MiniBank Collections Storage, Sorting & Concurrent Map");
         System.out.println();
 
-        Path accountsPath = Paths.get("data/accounts.dat");
-        Path logsDir = Paths.get("data/logs");
-        Path dailyLog = logsDir.resolve("daily_transactions.log");
-        Path reportFile = Paths.get("data/eod_report.txt");
+        AccountStore store = new AccountStore();
+        Account a1 = new Account("AC1001", "Rudra Modi", 5000.0);
+        Account a2 = new Account("AC1002", "Aarav Patel", 2000.0);
+        Account a3 = new Account("AC1003", "Diya Shah", 9000.0);
+        Account a4 = new Account("AC1004", "Kabir Mehta", 15400.0);
 
-        try {
-            if (accountsPath.getParent() != null && !Files.exists(accountsPath.getParent())) {
-                Files.createDirectories(accountsPath.getParent());
-            }
+        store.add(a1);
+        store.add(a2);
+        store.add(a3);
+        store.add(a4);
 
-            Customer c1 = new Customer("Rudra Modi", "CUST101");
-            Customer c2 = new Customer("Aarav Patel", "CUST102");
-            Customer c3 = new Customer("Diya Shah", "CUST103");
+        System.out.println("Direct Hash Lookup via get('AC1002'):");
+        Account fetched = store.get("AC1002");
+        System.out.println("  " + fetched);
 
-            Account[] accounts = {
-                new Account("AC1001", c1, 15000.0),
-                new Account("AC1002", c2, 28000.0),
-                new Account("AC1003", c3, 5400.0)
-            };
-
-            System.out.println("Saving accounts to binary storage: " + accountsPath);
-            StatePersister.save(accounts, accountsPath);
-
-            System.out.println("Reloading accounts via StatePersister.load():");
-            Account[] reloaded = StatePersister.load(accountsPath);
-            for (Account acc : reloaded) {
-                System.out.println("  " + acc);
-            }
-
-            System.out.println();
-            System.out.println("Appending transaction events to audit log...");
-            TransactionLog.append(dailyLog, "DEPOSIT AC1001 5000");
-            TransactionLog.append(dailyLog, "WITHDRAW AC1002 3000");
-            TransactionLog.append(dailyLog, "DEPOSIT AC1003 12000");
-            TransactionLog.append(dailyLog, "WITHDRAW AC1001 1500");
-            System.out.println("Audit logs recorded successfully in " + dailyLog);
-
-            System.out.println();
-            System.out.println("Generating reconciliation report with NIO DirectoryStream:");
-            ReportGenerator.generateReport(logsDir, reportFile);
-
-        } catch (Exception e) {
-            System.err.println("Execution error: " + e.getMessage());
+        System.out.println();
+        System.out.println("All Accounts (Natural Order by Account Number via Comparable):");
+        List<Account> naturalOrderList = store.getAll();
+        Collections.sort(naturalOrderList);
+        for (Account a : naturalOrderList) {
+            System.out.println("  " + a);
         }
+
+        System.out.println();
+        System.out.println("All Accounts (Sorted by Balance Descending via Comparator):");
+        List<Account> sortedList = store.sortedByBalance();
+        for (Account a : sortedList) {
+            System.out.println("  " + a);
+        }
+
+        System.out.println();
+        System.out.println("Initializing ConcurrentHashMap TransactionProcessor for Multi-threading:");
+        TransactionProcessor processor = new TransactionProcessor();
+        processor.registerAccount(a1);
+        processor.registerAccount(a3);
+        processor.executeConcurrentDeposit("AC1001", 2500.0);
+        System.out.println("  Updated AC1001 via Concurrent Processor: " + processor.getAccount("AC1001"));
     }
 }
