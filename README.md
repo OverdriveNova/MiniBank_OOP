@@ -1,4 +1,4 @@
-# MiniBank OOP - Progressive Development (v13.0)
+# MiniBank OOP - Progressive Development (v14.0)
 
 > **Academic Practical Laboratory Project**  
 > **Course:** Object Oriented Programming (CEUE203) | Semester 3  
@@ -9,7 +9,7 @@
 ---
 
 ## Overview
-MiniBank is a core banking system simulator developed across 14 laboratory practicals. This branch currently reflects progress up to **Practical 13**.
+MiniBank is a core banking system simulator developed across 14 laboratory practicals. This branch currently reflects progress up to **Practical 14**.
 
 ## Practical Milestones Completed
 | Practical | Version | Title | Key OOP Concepts |
@@ -27,6 +27,7 @@ MiniBank is a core banking system simulator developed across 14 laboratory pract
 | Practical 11 | `v11.0` | MiniBank Persistence, Audit Log & NIO Report | Java Serialization, ObjectOutputStream/ObjectInputStream, serialVersionUID |
 | Practical 12 | `v12.0` | MiniBank Collections Storage, Sorting & Concurrent Map | Collections Framework, ConcurrentHashMap, Comparable vs Comparator |
 | Practical 13 | `v13.0` | MiniBank Generic Repository Pattern with Reflection @Id | Generics (Type Parameters), Repository Pattern, Reflection Metadata Discovery |
+| Practical 14 | `v14.0` | MiniBank Capstone Integrated Production Delivery | Capstone Architecture, Deadlock Prevention (Ordered Locking), ExecutorService & Thread Pools |
 
 ## How to Run This Version
 ```bash
@@ -36,4 +37,4 @@ java -cp src PartB
 ```
 
 ---
-*Progressive commit for Practical 13 — Part B MiniBank implementation.*
+*Progressive commit for Practical 14 — Part B MiniBank implementation.*
