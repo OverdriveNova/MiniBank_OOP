@@ -131,10 +131,11 @@ synchronized (first) {
 
 ```
 MiniBank_OOP/
-├── .gitignore                          # Git exclusions for .class, .dat, and IDE files
+├── MiniBank.java                       # Master production Java application (Practicals 1–14 integrated)
+├── MiniBank_Final_Submission.pdf       # Master final capstone evaluation report (23 pages)
+├── LICENSE                             # Official MIT License
 ├── README.md                           # Master project documentation (this file)
-├── src/                                # Main active source code (Latest Capstone v14.0)
-│   └── PartB.java                      # Full integrated banking application
+├── .gitignore                          # Git exclusions for .class, .dat, and IDE files
 ├── practicals/                         # All 14 progressive practical versions preserved
 │   ├── Practical-01/
 │   │   ├── PartB.java                  # Practical 1: Menu shell, records, enums
@@ -146,8 +147,7 @@ MiniBank_OOP/
 │   └── Practical-14/
 │       ├── PartB.java                  # Practical 14: Capstone integrated delivery
 │       └── README.md
-└── docs/                               # All 14 formal academic laboratory reports (.docx)
-    ├── README.md                       # Documentation catalog & syllabus guide
+└── PDFs/                               # All 14 formal academic laboratory reports (.pdf)
     ├── MiniBank_Practical01.pdf
     ├── MiniBank_Practical02.pdf
     ├── ...
@@ -194,7 +194,7 @@ All 14 academic laboratory reports submitted for Semester 3 evaluation are store
 - Verifiable Console Execution Outputs
 - Comprehensive Viva Questions and Academic Answers
 
-Browse the full index in [PDFs/README.md](PDFs/README.md).
+All 14 individual laboratory reports are directly accessible in the [`PDFs/`](PDFs/) directory.
 
 ---
 
@@ -215,6 +215,6 @@ Browse the full index in [PDFs/README.md](PDFs/README.md).
 ---
 
 ## ⚖️ License
-This project is developed for educational and academic submission purposes under the **MIT License**.
+This project is developed for educational and academic submission purposes under the [MIT License](LICENSE).
 
 Copyright (c) 2026 Rudra Modi. All rights reserved.
