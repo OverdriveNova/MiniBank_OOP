@@ -24,7 +24,7 @@ This directory contains all **14 complete academic lab documentation reports** f
 ---
 
 ## 🎓 Master Capstone Submission Report
-- **Master Word Report:** [`MiniBank_Final_Submission.docx`](MiniBank_Final_Submission.docx)
+- **Master Capstone Report:** [`MiniBank_Final_Submission.pdf`](../MiniBank_Final_Submission.pdf) (Located at repository root)
   - Formal university cover page (DEPSTAR / CHARUSAT) with student details (Rudra Modi / 25DCS058 / Batch B2)
   - 14-practical evolutionary roadmap
   - Complete, unified comment-free master production Java source code

@@ -168,9 +168,9 @@ MiniBank_OOP/
 git clone https://github.com/OverdriveNova/MiniBank_OOP.git
 cd MiniBank_OOP
 
-# Compile and execute the master application
-javac src/PartB.java
-java -cp src PartB
+# Compile and execute the master application directly from the root
+javac MiniBank.java
+java MiniBank
 ```
 
 ### 2. Run Any Historical Version Directly
@@ -186,7 +186,7 @@ java PartB
 
 ## 📑 Complete Lab Documentation Hub
 
-All 14 academic laboratory reports submitted for Semester 3 evaluation are stored in the [`PDFs/`](PDFs/) directory in Adobe Acrobat (`.pdf`) format, alongside the comprehensive capstone submission document [`PDFs/MiniBank_Final_Submission.docx`](PDFs/MiniBank_Final_Submission.docx). Each document contains:
+All 14 academic laboratory reports submitted for Semester 3 evaluation are stored in the [`PDFs/`](PDFs/) directory in Adobe Acrobat (`.pdf`) format, alongside the official capstone submission document [`MiniBank_Final_Submission.pdf`](MiniBank_Final_Submission.pdf) at the repository root. Each document contains:
 - Course & Student Metadata
 - Problem Aim & Technical Rationale
 - Mathematical Invariants & Step-by-Step Algorithms
