@@ -39,20 +39,20 @@
 
 | Practical | Milestone Tag | Title & Focus | Key Modern Java & OOP Concepts | Documentation |
 | :---: | :---: | :--- | :--- | :---: |
-| **01** | [`v1.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v1.0) | **MiniBank Console Menu Shell** | Java Records (`record BankInfo`), Enums, Arrow-Syntax Switch, `Scanner` input validation | [Doc 1](docs/MiniBank_Practical01.pdf) |
-| **02** | [`v2.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v2.0) | **Account Generator & Invariant Protection** | Private encapsulation, getters/mutators, static sequential ID counter, immutable `final` fields | [Doc 2](docs/MiniBank_Practical02.pdf) |
-| **03** | [`v3.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v3.0) | **Deep-Copy Cloning & Address Subsystem** | Standard Object overrides (`toString`, `equals`, `hashCode`), nested `Address`, deep-copy `Cloneable` | [Doc 3](docs/MiniBank_Practical03.pdf) |
-| **04** | [`v4.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v4.0) | **Regex Validation & Masked Formatting** | `java.util.regex` (`Pattern`, `Matcher`), `StringBuilder` statement assembly, sensitive data masking | [Doc 4](docs/MiniBank_Practical04.pdf) |
-| **05** | [`v5.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v5.0) | **Polymorphic Account Hierarchy** | Abstract base class `Account`, concrete subclasses `SavingsAccount`, `CurrentAccount`, `FixedDepositAccount` | [Doc 5](docs/MiniBank_Practical05.pdf) |
-| **06** | [`v6.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v6.0) | **Transaction Processing & Contracts** | Interface contracts `Transactable`, `InterestBearing`, dynamic `WithdrawRule` strategy pattern | [Doc 6](docs/MiniBank_Practical06.pdf) |
-| **07** | [`v7.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v7.0) | **Runtime Metadata & Annotation Validator** | Custom runtime annotations (`@Id`, `@Positive`, `@MaxLength`), Java Reflection field inspection | [Doc 7](docs/MiniBank_Practical07.pdf) |
-| **08** | [`v8.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v8.0) | **Robust Exception Handling Architecture** | Custom checked hierarchy (`BankException`, `InsufficientFundsException`), `BankSession` transactions | [Doc 8](docs/MiniBank_Practical08.pdf) |
-| **09** | [`v9.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v9.0) | **Multithreaded Account Synchronization** | `Runnable` worker threads, race condition prevention, synchronized monitor locking | [Doc 9](docs/MiniBank_Practical09.pdf) |
-| **10** | [`v10.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v10.0) | **Concurrent Transaction Processor Engine** | High-volume concurrent batch workloads, thread coordination, balance audit reconciliation | [Doc 10](docs/MiniBank_Practical10.pdf) |
-| **11** | [`v11.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v11.0) | **Persistence, Audit Log & NIO Report** | Object Serialization (`Serializable`, `ObjectOutputStream`), state persistence, Java NIO audit logs | [Doc 11](docs/MiniBank_Practical11.pdf) |
-| **12** | [`v12.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v12.0) | **Collections Storage & Concurrent Map** | Java Collections Framework, `ConcurrentHashMap<String, Account>`, `Comparable` and `Comparator` sorting | [Doc 12](docs/MiniBank_Practical12.pdf) |
-| **13** | [`v13.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v13.0) | **Generic Repository with Reflection @Id** | Generic DAO pattern (`Repository<T>`), reflection-driven entity primary key resolution | [Doc 13](docs/MiniBank_Practical13.pdf) |
-| **14** | [`v14.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v14.0) | **Capstone Integrated Production Delivery** | `BankService` domain facade, deadlock-free ordered locking, `ExecutorService` thread pool, binary storage | [Doc 14](docs/MiniBank_Practical14.pdf) |
+| **01** | [`v1.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v1.0) | **MiniBank Console Menu Shell** | Java Records (`record BankInfo`), Enums, Arrow-Syntax Switch, `Scanner` input validation | [Doc 1](PDFs/MiniBank_Practical01.pdf) |
+| **02** | [`v2.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v2.0) | **Account Generator & Invariant Protection** | Private encapsulation, getters/mutators, static sequential ID counter, immutable `final` fields | [Doc 2](PDFs/MiniBank_Practical02.pdf) |
+| **03** | [`v3.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v3.0) | **Deep-Copy Cloning & Address Subsystem** | Standard Object overrides (`toString`, `equals`, `hashCode`), nested `Address`, deep-copy `Cloneable` | [Doc 3](PDFs/MiniBank_Practical03.pdf) |
+| **04** | [`v4.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v4.0) | **Regex Validation & Masked Formatting** | `java.util.regex` (`Pattern`, `Matcher`), `StringBuilder` statement assembly, sensitive data masking | [Doc 4](PDFs/MiniBank_Practical04.pdf) |
+| **05** | [`v5.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v5.0) | **Polymorphic Account Hierarchy** | Abstract base class `Account`, concrete subclasses `SavingsAccount`, `CurrentAccount`, `FixedDepositAccount` | [Doc 5](PDFs/MiniBank_Practical05.pdf) |
+| **06** | [`v6.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v6.0) | **Transaction Processing & Contracts** | Interface contracts `Transactable`, `InterestBearing`, dynamic `WithdrawRule` strategy pattern | [Doc 6](PDFs/MiniBank_Practical06.pdf) |
+| **07** | [`v7.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v7.0) | **Runtime Metadata & Annotation Validator** | Custom runtime annotations (`@Id`, `@Positive`, `@MaxLength`), Java Reflection field inspection | [Doc 7](PDFs/MiniBank_Practical07.pdf) |
+| **08** | [`v8.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v8.0) | **Robust Exception Handling Architecture** | Custom checked hierarchy (`BankException`, `InsufficientFundsException`), `BankSession` transactions | [Doc 8](PDFs/MiniBank_Practical08.pdf) |
+| **09** | [`v9.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v9.0) | **Multithreaded Account Synchronization** | `Runnable` worker threads, race condition prevention, synchronized monitor locking | [Doc 9](PDFs/MiniBank_Practical09.pdf) |
+| **10** | [`v10.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v10.0) | **Concurrent Transaction Processor Engine** | High-volume concurrent batch workloads, thread coordination, balance audit reconciliation | [Doc 10](PDFs/MiniBank_Practical10.pdf) |
+| **11** | [`v11.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v11.0) | **Persistence, Audit Log & NIO Report** | Object Serialization (`Serializable`, `ObjectOutputStream`), state persistence, Java NIO audit logs | [Doc 11](PDFs/MiniBank_Practical11.pdf) |
+| **12** | [`v12.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v12.0) | **Collections Storage & Concurrent Map** | Java Collections Framework, `ConcurrentHashMap<String, Account>`, `Comparable` and `Comparator` sorting | [Doc 12](PDFs/MiniBank_Practical12.pdf) |
+| **13** | [`v13.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v13.0) | **Generic Repository with Reflection @Id** | Generic DAO pattern (`Repository<T>`), reflection-driven entity primary key resolution | [Doc 13](PDFs/MiniBank_Practical13.pdf) |
+| **14** | [`v14.0`](https://github.com/OverdriveNova/MiniBank_OOP/tree/v14.0) | **Capstone Integrated Production Delivery** | `BankService` domain facade, deadlock-free ordered locking, `ExecutorService` thread pool, binary storage | [Doc 14](PDFs/MiniBank_Practical14.pdf) |
 
 ---
 
@@ -186,7 +186,7 @@ java PartB
 
 ## 📑 Complete Lab Documentation Hub
 
-All 14 academic laboratory reports submitted for Semester 3 evaluation are stored in the [`docs/`](docs/) directory in Microsoft Word (`.docx`) format. Each document contains:
+All 14 academic laboratory reports submitted for Semester 3 evaluation are stored in the [`PDFs/`](PDFs/) directory in Adobe Acrobat (`.pdf`) format, alongside the comprehensive capstone submission document [`PDFs/MiniBank_Final_Submission.docx`](PDFs/MiniBank_Final_Submission.docx). Each document contains:
 - Course & Student Metadata
 - Problem Aim & Technical Rationale
 - Mathematical Invariants & Step-by-Step Algorithms
@@ -194,7 +194,7 @@ All 14 academic laboratory reports submitted for Semester 3 evaluation are store
 - Verifiable Console Execution Outputs
 - Comprehensive Viva Questions and Academic Answers
 
-Browse the full index in [docs/README.md](docs/README.md).
+Browse the full index in [PDFs/README.md](PDFs/README.md).
 
 ---
 

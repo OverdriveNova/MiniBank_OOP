@@ -23,6 +23,15 @@ This directory contains all **14 complete academic lab documentation reports** f
 
 ---
 
+## 🎓 Master Capstone Submission Report
+- **Master Word Report:** [`MiniBank_Final_Submission.docx`](MiniBank_Final_Submission.docx)
+  - Formal university cover page (DEPSTAR / CHARUSAT) with student details (Rudra Modi / 25DCS058 / Batch B2)
+  - 14-practical evolutionary roadmap
+  - Complete, unified comment-free master production Java source code
+  - 12 authentic VS Code terminal screenshots showcasing all runtime features
+  - 6 technical viva voce questions and answers
+  - High-visibility dedicated repository verification and faculty evaluation sign-off block
+
 ## Document Contents Structure
 Each document includes:
 1. **Student Header**: Full name, enrollment ID (25DCS058), course code, and institute.
