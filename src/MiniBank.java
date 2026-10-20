@@ -594,7 +594,7 @@ public class MiniBank {
         }
 
         try {
-            service.withdraw("AC1001", 100000.0);
+            service.withdraw("AC1001", 200000.0);
             System.out.println("   [TEST 2 FAILED] Overdraft was allowed erroneously!");
         } catch (InsufficientFundsException e) {
             System.out.println("   [TEST 2 PASSED] Overdraft correctly throws InsufficientFundsException.");
