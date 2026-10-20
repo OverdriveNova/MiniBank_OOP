@@ -28,9 +28,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-// ============================================================================
-// PRACTICAL 7: CUSTOM RUNTIME ANNOTATIONS & REFLECTION METADATA
-// ============================================================================
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @interface Id {}
@@ -45,9 +42,6 @@ import java.util.stream.Collectors;
     int value();
 }
 
-// ============================================================================
-// PRACTICAL 8: CUSTOM CHECKED EXCEPTION HIERARCHY
-// ============================================================================
 class BankException extends Exception {
     public BankException(String message) {
         super(message);
@@ -72,9 +66,6 @@ class InvalidAmountException extends BankException {
     }
 }
 
-// ============================================================================
-// PRACTICAL 1: RECORDS & ENUMS
-// ============================================================================
 record BankInfo(String name, String branch, String ifscCode) implements Serializable {
     private static final long serialVersionUID = 1L;
 }
@@ -87,9 +78,6 @@ enum MenuOption {
     OPEN_ACCOUNT, DEPOSIT, WITHDRAW, TRANSFER, VIEW_ACCOUNTS, RUN_AUDIT, BATCH_TRANSACT, SYSTEM_STATS, RUN_TEST_SUITE, EXIT
 }
 
-// ============================================================================
-// PRACTICAL 6: INTERFACE CONTRACTS & STRATEGY PATTERN
-// ============================================================================
 interface Transactable {
     void deposit(double amount) throws BankException;
     void withdraw(double amount) throws BankException;
@@ -106,9 +94,6 @@ interface WithdrawRule {
     boolean validate(Account account, double amount) throws BankException;
 }
 
-// ============================================================================
-// PRACTICAL 4: REGULAR EXPRESSIONS & INPUT VALIDATOR
-// ============================================================================
 class Validator {
     private static final Pattern ACC_PATTERN = Pattern.compile("^AC[0-9]{4}$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^[6-9][0-9]{9}$");
@@ -132,9 +117,6 @@ class Validator {
     }
 }
 
-// ============================================================================
-// PRACTICAL 3: OBJECT CONTRACT, STATIC NESTED CLASS & DEEP COPYING
-// ============================================================================
 class Customer implements Cloneable, Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -212,9 +194,6 @@ class Customer implements Cloneable, Serializable {
     }
 }
 
-// ============================================================================
-// PRACTICAL 2 & 5: ENCAPSULATION & POLYMORPHIC ACCOUNT HIERARCHY
-// ============================================================================
 abstract class Account implements Transactable, Comparable<Account>, Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -367,9 +346,6 @@ class FixedDepositAccount extends Account implements InterestBearing {
     }
 }
 
-// ============================================================================
-// PRACTICAL 7: ANNOTATION RUNTIME REFLECTION VALIDATOR
-// ============================================================================
 class AnnotationValidator {
     public static void validate(Object obj) throws BankException {
         Class<?> clazz = obj.getClass();
@@ -400,9 +376,6 @@ class AnnotationValidator {
     }
 }
 
-// ============================================================================
-// PRACTICAL 13: GENERIC REPOSITORY PATTERN
-// ============================================================================
 class Repository<T> implements Serializable {
     private static final long serialVersionUID = 1L;
     private final Map<String, T> storage = new ConcurrentHashMap<>();
@@ -450,9 +423,6 @@ class Repository<T> implements Serializable {
     }
 }
 
-// ============================================================================
-// PRACTICAL 14: ENTERPRISE BANK SERVICE & DEADLOCK-FREE CONCURRENCY
-// ============================================================================
 class BankService {
     private final Repository<Account> repository;
     private final BankInfo bankInfo;
@@ -463,7 +433,6 @@ class BankService {
         this.repository = repository;
         this.bankInfo = bankInfo;
 
-        // Initialize idCounter based on existing accounts
         for (Account acc : repository.findAll()) {
             try {
                 int num = Integer.parseInt(acc.getAccountNumber().replace("AC", ""));
@@ -509,7 +478,6 @@ class BankService {
         logAudit(String.format("WITHDRAW | %s | Rs. %.2f | New Balance: Rs. %.2f", accNum, amount, acc.getBalance()));
     }
 
-    // DEADLOCK PREVENTION VIA DETERMINISTIC LOCK ORDERING
     public void transfer(String fromAccNum, String toAccNum, double amount) throws BankException {
         if (fromAccNum.equals(toAccNum)) {
             throw new BankException("Source and destination accounts must be distinct.");
@@ -519,7 +487,6 @@ class BankService {
         if (from == null) throw new AccountNotFoundException("Source account not found: " + fromAccNum);
         if (to == null) throw new AccountNotFoundException("Destination account not found: " + toAccNum);
 
-        // Strict deterministic lock order based on lexicographical order of account numbers
         Account first = from.getAccountNumber().compareTo(to.getAccountNumber()) < 0 ? from : to;
         Account second = (first == from) ? to : from;
 
@@ -560,33 +527,25 @@ class BankService {
     }
 }
 
-// ============================================================================
-// MAIN APPLICATION DRIVER & AUTOMATED TEST SUITE HARNESS
-// ============================================================================
 public class MiniBank {
     private static final Path DATA_FILE = Paths.get("data/minibank_system.dat");
 
     public static void main(String[] args) {
         printHeader();
 
-        // 1. Initialize Bank Information Record
         BankInfo bankInfo = new BankInfo("CHARUSAT MiniBank Central", "DEPSTAR Branch", "CHAR0002031");
         System.out.println("[BANK INFO] " + bankInfo.name() + " | BRANCH: " + bankInfo.branch() + " | IFSC: " + bankInfo.ifscCode());
         System.out.println();
 
-        // 2. Load or Initialize Repository via Binary Serialization
         Repository<Account> repository = loadRepository();
         BankService service = new BankService(repository, bankInfo);
 
-        // Bootstrap baseline accounts if repository is empty
         if (repository.count() == 0) {
             bootstrapInitialAccounts(service);
         }
 
-        // 3. Execute Complete Automated Capstone Verification
         executeAutomatedVerification(service);
 
-        // 4. Save Final Persistent State
         saveRepository(repository);
 
         System.out.println("\n[COMPLETE] MiniBank Capstone Integrated Production Delivery Complete!");
@@ -627,7 +586,6 @@ public class MiniBank {
 
         System.out.println("\n2. Executing Automated Capstone Test Suite:");
 
-        // Test 1: Invariant Deposit
         try {
             service.deposit("AC1001", 6000.0);
             System.out.println("   [TEST 1 PASSED] Deposit strictly increases balance.");
@@ -635,7 +593,6 @@ public class MiniBank {
             System.out.println("   [TEST 1 FAILED] " + e.getMessage());
         }
 
-        // Test 2: Overdraft Rejection
         try {
             service.withdraw("AC1001", 100000.0);
             System.out.println("   [TEST 2 FAILED] Overdraft was allowed erroneously!");
@@ -645,7 +602,6 @@ public class MiniBank {
             System.out.println("   [TEST 2 PASSED with BankException] " + e.getMessage());
         }
 
-        // Test 3: Deadlock-Free Inter-Account Atomic Transfer
         try {
             service.transfer("AC1001", "AC1002", 2000.0);
             System.out.println("   [TEST 3 PASSED] Atomic inter-account transfer succeeded.");
@@ -653,7 +609,6 @@ public class MiniBank {
             System.out.println("   [TEST 3 FAILED] " + e.getMessage());
         }
 
-        // Test 4: Deep Copying Verification (Practical 3)
         Customer original = new Customer("C01", "Test User", "9999999999", new Customer.Address("CityA", "StateA", "111111"));
         Customer clone = original.clone();
         clone.getAddress().setCity("CityB");
@@ -663,7 +618,6 @@ public class MiniBank {
             System.out.println("   [TEST 4 FAILED] Shallow copy detected!");
         }
 
-        // Test 5: Custom Annotations Reflection Validation (Practical 7)
         try {
             AnnotationValidator.validate(service.listAccountsSorted().get(0));
             System.out.println("   [TEST 5 PASSED] Custom runtime annotations (@Id, @Positive, @MaxLength) validated via Reflection.");
@@ -671,7 +625,6 @@ public class MiniBank {
             System.out.println("   [TEST 5 FAILED] Annotation error: " + e.getMessage());
         }
 
-        // Test 6: High-Concurrency Multi-Threaded Stress Test (Practical 9 & 14)
         System.out.println("\n3. Executing Concurrent Batch Transactions:");
         ExecutorService executor = Executors.newFixedThreadPool(4);
         for (int i = 0; i < 6; i++) {
@@ -689,14 +642,12 @@ public class MiniBank {
             executor.shutdownNow();
         }
 
-        // 4. Final Balances & Stream Analytics
         System.out.println("\n4. Final Account Balances post-execution:");
         for (Account acc : service.listAccountsSorted()) {
             System.out.println("   Account[" + acc.getAccountNumber() + " | " + acc.getHolderName() +
                     " | Rs. " + String.format("%.2f", acc.getBalance()) + "]");
         }
 
-        // 5. Java Streams Analytics (Practical 12)
         System.out.println("\n5. In-Memory Java Streams API Analytics:");
         double totalAssets = service.calculateTotalBankAssets();
         System.out.printf("   Total Bank Reserve Capital: Rs. %,.2f%n", totalAssets);
