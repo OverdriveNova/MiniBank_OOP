@@ -132,7 +132,7 @@ synchronized (first) {
 ```
 MiniBank_OOP/
 ├── MiniBank.java                       # Master production Java application (Practicals 1–14 integrated)
-├── MiniBank_Final_Submission.pdf       # Master final capstone evaluation report (23 pages)
+├── 25DCS058_MiniBank_OOP.pdf           # Master final capstone evaluation report (23 pages)
 ├── LICENSE                             # Official MIT License
 ├── README.md                           # Master project documentation (this file)
 ├── .gitignore                          # Git exclusions for .class, .dat, and IDE files
@@ -186,7 +186,7 @@ java PartB
 
 ## 📑 Complete Lab Documentation Hub
 
-All 14 academic laboratory reports submitted for Semester 3 evaluation are stored in the [`PDFs/`](PDFs/) directory in Adobe Acrobat (`.pdf`) format, alongside the official capstone submission document [`MiniBank_Final_Submission.pdf`](MiniBank_Final_Submission.pdf) at the repository root. Each document contains:
+All 14 academic laboratory reports submitted for Semester 3 evaluation are stored in the [`PDFs/`](PDFs/) directory in Adobe Acrobat (`.pdf`) format, alongside the official capstone submission document [`25DCS058_MiniBank_OOP.pdf`](25DCS058_MiniBank_OOP.pdf) at the repository root. Each document contains:
 - Course & Student Metadata
 - Problem Aim & Technical Rationale
 - Mathematical Invariants & Step-by-Step Algorithms
